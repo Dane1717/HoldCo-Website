@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HoldCo Command Center — Case Study</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #000000;
+      --bg-charcoal: #141414;
+      --bg-blue: #0004ff;
+      --bg-lime: #cf0;
+      --text-primary: #EFEFEF;
+      --text-dark: #0a0a0a;
+      --text-muted: #767676;
+      --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --hero-size: clamp(48px, 10vw, 160px);
+      --section-size: clamp(36px, 8vw, 120px);
+      --body-size: clamp(16px, 1.2vw, 20px);
+      --label-size: 12px;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.35;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+    }
+
+    section {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 4vw 6vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero {
+      min-height: 100vh;
+      background: var(--bg-primary);
+    }
+
+    .before {
+      background: var(--bg-charcoal);
+    }
+
+    .process {
+      background: var(--bg-blue);
+      color: var(--text-primary);
+    }
+
+    .after {
+      background: var(--bg-lime);
+      color: var(--text-dark);
+    }
+
+    .footer {
+      min-height: 50vh;
+      background: var(--bg-primary);
+      justify-content: space-between;
+      padding-bottom: 6vw;
+    }
+
+    h1, h2, h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      line-height: 0.92;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: var(--hero-size);
+    }
+
+    h2 {
+      font-size: var(--section-size);
+    }
+
+    h3 {
+      font-size: clamp(24px, 3vw, 48px);
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: var(--body-size);
+      line-height: 1.5;
+      max-width: 52ch;
+      color: var(--text-muted);
+    }
+
+    .process p,
+    .after p {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .after p {
+      color: rgba(10,10,10,0.65);
+    }
+
+    .label {
+      font-family: var(--font-body);
+      font-size: var(--label-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 2rem;
+      display: block;
+    }
+
+    .hero .label {
+      color: var(--text-muted);
+    }
+
+    .before .label {
+      color: rgba(239,239,239,0.4);
+    }
+
+    .process .label {
+      color: rgba(239,239,239,0.5);
+    }
+
+    .after .label {
+      color: rgba(10,10,10,0.4);
+    }
+
+    /* Character reveal animation initial state */
+    .char-reveal span {
+      display: inline-block;
+      opacity: 0;
+      white-space: pre;
+    }
+
+    .char-reveal.revealed span {
+      opacity: 1;
+    }
+
+    /* Subheading spacing */
+    .subhead {
+      margin-top: 2rem;
+      font-size: var(--body-size);
+      color: var(--text-muted);
+      max-width: 48ch;
+    }
+
+    /* Generic dashboard mockup (BEFORE) */
+    .dashboard-mockup {
+      margin-top: 3rem;
+      width: 100%;
+      max-width: 900px;
+      border-radius: 8px;
+      overflow: hidden;
+      opacity: 0.6;
+    }
+
+    .dash-header {
+      background: #1a1a1a;
+      padding: 12px 20px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #444; }
+
+    .dash-body {
+      background: #111;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .dash-card {
+      background: #1c1c1c;
+      border-radius: 6px;
+      padding: 16px;
+      min-height: 80px;
+    }
+
+    .dash-card.wide {
+      grid-column: span 2;
+    }
+
+    .dash-card.full {
+      grid-column: span 3;
+    }
+
+    /* Process pillars */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3vw;
+      margin-top: 4rem;
+      width: 100%;
+    }
+
+    .pillar h3 {
+      font-size: clamp(20px, 2.5vw, 36px);
+      margin-bottom: 1rem;
+    }
+
+    .pillar p {
+      font-size: clamp(14px, 1vw, 16px);
+      color: rgba(255,255,255,0.6);
+    }
+
+    /* After visual */
+    .after-visual {
+      margin-top: 3rem;
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+
+    .after-block {
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: clamp(24px, 4vw, 64px);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+
+    .after-block:nth-child(1) { background: #0a0a0a; color: #EFEFEF; }
+    .after-block:nth-child(2) { background: #0004ff; color: #fff; }
+    .after-block:nth-child(3) { background: #cf0; color: #0a0a0a; }
+    .after-block:nth-child(4) { background: #ff008c; color: #fff; }
+
+    /* Footer */
+    .footer-cta {
+      margin-top: auto;
+    }
+
+    .footer h2 {
+      font-size: clamp(32px, 6vw, 96px);
+      margin-bottom: 2rem;
+    }
+
+    .contact-row {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .contact-row a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: var(--body-size);
+      font-weight: 500;
+      border-bottom: 1px solid rgba(239,239,239,0.2);
+      padding-bottom: 4px;
+      transition: border-color 0.3s ease;
+    }
+
+    .contact-row a:hover {
+      border-color: var(--text-primary);
+    }
+
+    .meta {
+      margin-top: 4rem;
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      section {
+        padding: 6vw 5vw;
+      }
+
+      .pillars {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .after-visual {
+        grid-template-columns: 1fr;
+      }
+
+      .dash-body {
+        grid-template-columns: 1fr;
+      }
+
+      .dash-card.wide,
+      .dash-card.full {
+        grid-column: span 1;
+      }
+
+      .contact-row {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <span class="label">Case Study / 2026</span>
+    <h1 class="char-reveal" data-reveal="hero">HOLDCO COMMAND CENTER</h1>
+    <p class="subhead char-reveal" data-reveal="sub">From generic admin dashboard to Awwwards-level command interface.</p>
+  </section>
+
+  <!-- BEFORE -->
+  <section class="before" id="before">
+    <span class="label">01 — The Problem</span>
+    <h2 class="char-reveal" data-reveal="before-title">GENERIC.</h2>
+    <p>A standard Bootstrap admin panel. Card grids. Muted grays. No hierarchy, no motion, no personality. Users tolerated it. Nobody loved it.</p>
+    <div class="dashboard-mockup">
+      <div class="dash-header">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="dash-body">
+        <div class="dash-card wide"></div>
+        <div class="dash-card"></div>
+        <div class="dash-card full"></div>
+        <div class="dash-card"></div>
+        <div class="dash-card wide"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="process" id="process">
+    <span class="label">02 — The Transformation</span>
+    <h2 class="char-reveal" data-reveal="process-title">REBUILT.</h2>
+    <p>We stripped everything back to first principles. Typography as architecture. Motion as narrative. Color as emotion.</p>
+    <div class="pillars">
+      <div class="pillar">
+        <h3>Typography</h3>
+        <p>Massive display type at viewport scale. Tight leading. Every character placed with intent.</p>
+      </div>
+      <div class="pillar">
+        <h3>Motion</h3>
+        <p>Scroll-driven reveals. Physics-based interactions. Nothing moves without purpose.</p>
+      </div>
+      <div class="pillar">
+        <h3>Craft</h3>
+        <p>Performance budget: LCP under 2.5s. CLS under 0.1. Every byte earns its place.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- AFTER -->
+  <section class="after" id="after">
+    <span class="label">03 — The Result</span>
+    <h2 class="char-reveal" data-reveal="after-title">EXTRAORDINARY.</h2>
+    <p>A command interface that commands attention. Full-bleed sections. Living color fields. A system designed to be felt, not just used.</p>
+    <div class="after-visual">
+      <div class="after-block">Bold</div>
+      <div class="after-block">Living</div>
+      <div class="after-block">Precise</div>
+      <div class="after-block">Fast</div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <section class="footer" id="contact">
+    <div class="footer-cta">
+      <span class="label">Website — Visual-First Web Agency</span>
+      <h2 class="char-reveal" data-reveal="cta">LET'S BUILD<br>SOMETHING BOLD.</h2>
+      <div class="contact-row">
+        <a href="mailto:hello@holdco.dev">hello@holdco.dev</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">GitHub</a>
+      </div>
+      <div class="meta">
+        HoldCo Website Ventures — Built with vanilla everything. No frameworks. No excuses.
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Wrap text in character spans for reveal animation
+    function wrapChars(element) {
+      const text = element.textContent;
+      element.textContent = '';
+      text.split('').forEach(char => {
+        const span = document.createElement('span');
+        span.textContent = char;
+        span.style.opacity = '0';
+        element.appendChild(span);
+      });
+    }
+
+    // Initialize character reveals
+    document.querySelectorAll('.char-reveal').forEach(el => {
+      wrapChars(el);
+    });
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero reveal — happens on load with slight delay
+    const heroSpans = document.querySelector('[data-reveal="hero"]').querySelectorAll('span');
+    gsap.to(heroSpans, {
+      opacity: 1,
+      duration: 0.04,
+      stagger: 0.03,
+      ease: 'none',
+      delay: 0.3
+    });
+
+    const subSpans = document.querySelector('[data-reveal="sub"]').querySelectorAll('span');
+    gsap.to(subSpans, {
+      opacity: 1,
+      duration: 0.04,
+      stagger: 0.015,
+      ease: 'none',
+      delay: 0.8
+    });
+
+    // Scroll-driven reveals for section headlines
+    const revealConfigs = [
+      { selector: '[data-reveal="before-title"]', start: 'top 80%' },
+      { selector: '[data-reveal="process-title"]', start: 'top 80%' },
+      { selector: '[data-reveal="after-title"]', start: 'top 80%' },
+      { selector: '[data-reveal="cta"]', start: 'top 85%' }
+    ];
+
+    revealConfigs.forEach(cfg => {
+      const el = document.querySelector(cfg.selector);
+      if (!el) return;
+      const spans = el.querySelectorAll('span');
+      gsap.to(spans, {
+        opacity: 1,
+        duration: 0.05,
+        stagger: 0.025,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: el,
+          start: cfg.start,
+          toggleActions: 'play none none none'
+        }
+      });
+    });
+
+    // Parallax subtle shift on dashboard mockup
+    gsap.to('.dashboard-mockup', {
+      y: -40,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.before',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1
+      }
+    });
+
+    // After blocks stagger in
+    gsap.from('.after-block', {
+      y: 60,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.15,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.after-visual',
+        start: 'top 85%'
+      }
+    });
+
+    // Pillars stagger in
+    gsap.from('.pillar', {
+      y: 40,
+      opacity: 0,
+      duration: 0.7,
+      stagger: 0.2,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.pillars',
+        start: 'top 85%'
+      }
+    });
+  </script>
+</body>
+</html>
