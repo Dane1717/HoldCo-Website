@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HoldCo Command Center — Case Study</title>
+  <meta name="description" content="Visual-first web studio. See how we transformed a generic admin dashboard into an Awwwards-level command interface — vanilla code, sub-2.5s LCP, scroll-driven animations.">
+  <meta property="og:title" content="HoldCo Command Center — Case Study">
+  <meta property="og:description" content="From generic dashboard to Awwwards-level interface. Built with vanilla everything. No frameworks. No excuses.">
+  <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -411,8 +416,8 @@
       <h2 class="char-reveal" data-reveal="cta">LET'S BUILD<br>SOMETHING BOLD.</h2>
       <div class="contact-row">
         <a href="mailto:hello@holdco.dev">hello@holdco.dev</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">GitHub</a>
+        <a href="https://linkedin.com/in/danejohnson" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://github.com/Dane1717" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
       <div class="meta">
         HoldCo Website Ventures — Built with vanilla everything. No frameworks. No excuses.
@@ -421,6 +426,7 @@
   </section>
 
   <script>
+    document.addEventListener('DOMContentLoaded', function() {
     // Wrap text in character spans for reveal animation
     function wrapChars(element) {
       const text = element.textContent;
@@ -520,6 +526,7 @@
         trigger: '.pillars',
         start: 'top 85%'
       }
+    });
     });
   </script>
 </body>
